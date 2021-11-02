@@ -1,0 +1,83 @@
+﻿<div class="jumbotron">
+    <h1>ASP.NET</h1>
+    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS, and JavaScript.</p>
+    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        @{
+            ViewBag.Title = "Index";
+        }
+
+        <table id="tbl_employee" class="table table-bordered table-striped table-responsive table-hover">
+            <thead>
+                <tr>
+                    <th align="left">Registration Number</th>
+                    <th align="left">IsExternal</th>
+                    <th align="left">FullName</th>
+                    <th align="left">Gender</th>
+                    <th align="left">Birthday</th>
+                    <th align="left">Position Name</th>
+                    <th align="left">Salary</th>
+                    <th align="left"></th>
+                    <th align="left"></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        @Scripts.Render("~/scripts/jquery-3.6.0.min.js")
+        @Scripts.Render("~/scripts/jquery.unobtrusive-ajax.min.js")
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        LoadData();
+    });
+
+    function LoadData() {
+        $("#tbl_employee tbody tr").remove();
+        $.ajax({
+            type: 'GET',
+            url: '/api/employee',
+            dataType: 'json',
+            success: function (data) {
+                $.each(data, function (i, item) {
+                    var rows = "<tr>"
+                        + "<td>" + item.RegistrationNumber + "</td>"
+                        + "<td>" + item.IsExternalEmployee + "</td>"
+                        + "<td>" + item.FullName + "</td>"
+                        + "<td>" + item.Gender + "</td>"
+                        + "<td>" + item.Birthday + "</td>"
+                        + "<td>" + item.Position?.Name + "</td>"
+                        + "<td>" + item.Position?.Salary + "</td>"
+                        + `<td><button Onclick='Edit(${item.RegistrationNumber},${item.IsExternalEmployee})'>Edit</button></td>`
+                        + `<td><button Onclick='Delete(${item.RegistrationNumber},${item.IsExternalEmployee})'>Delete</button></td>`
+                        + "</tr>";
+                    $('#tbl_employee tbody').append(rows);
+                });
+            },
+            error: function (ex) {
+                var r = jQuery.parseJSON(response.responseText);
+                alert("Message: " + r.Message);
+                alert("StackTrace: " + r.StackTrace);
+                alert("ExceptionType: " + r.ExceptionType);
+            }
+        });
+        return false;
+    }
+
+    function Edit(id) {
+        alert(id);
+    }
+
+    function Delete(registrationNumber, isExternalEmployee) {
+        $.ajax({
+            type: 'DELETE',
+            url: `/api/employee?registrationNumber=${registrationNumber}&isExternalEmployee=${isExternalEmployee}`,
+            success: function () {
+                LoadData();
+            }
+        });
+    }
+</script>
