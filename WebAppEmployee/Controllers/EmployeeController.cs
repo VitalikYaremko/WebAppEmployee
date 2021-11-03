@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -71,5 +73,32 @@ namespace WebAppEmployee.Controllers
             await _employeeService.Delete(registrationNumber);
             return Ok();
         }
+
+        [HttpPost, Route("~/api/employee/import")]
+        public async Task<IHttpActionResult> ImportEmployees()
+        {
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+                if (httpRequest.Files.Count > 0)
+                {
+                    var postedFile = httpRequest.Files[0];
+
+                    using (StreamReader r = new StreamReader(postedFile.InputStream))
+                    {
+                        string json = r.ReadToEnd();
+                        List<Employee> items = JsonConvert.DeserializeObject<List<Employee>>(json);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+            
+            return Ok();
+        }
+
     }
 }
