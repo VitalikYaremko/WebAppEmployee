@@ -1,12 +1,12 @@
-﻿<div class="jumbotron">
+﻿@model IEnumerable<WebAppEmployee.Domain.Models.Employee>
+<div class="jumbotron">
     <h1>ASP.NET MVC 5 TEST</h1>
+</div>
+<div id="modDialog" class="modal fade">
+    <div id="dialogContent" class="modal-dialog"></div>
 </div>
 <div class="row">
     <div class="col-md-4">
-        @{
-            ViewBag.Title = "Index";
-        }
-
         <table id="tbl_employee" class="table table-bordered table-striped table-responsive table-hover">
             <thead>
                 <tr>
@@ -25,6 +25,27 @@
         </table>
         @Scripts.Render("~/scripts/jquery-3.6.0.min.js")
         @Scripts.Render("~/scripts/jquery.unobtrusive-ajax.min.js")
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
     </div>
 </div>
 <script type="text/javascript">
@@ -66,7 +87,7 @@
     }
 
     function Edit(registrationNumber, isExternalEmployee) {
-        alert(registrationNumber, isExternalEmployee);
+        $('#exampleModal').modal('show');
     }
 
     function Delete(registrationNumber, isExternalEmployee) {
