@@ -16,7 +16,8 @@ namespace WebAppEmployee.Data.Repositories
         {
             using (var context = new WebAppContext())
             {
-                return await context.Employees.FirstOrDefaultAsync(x => x.RegistrationNumber == registrationNumber);
+                var employee = await context.Employees.Include(x => x.Position).FirstOrDefaultAsync(x => x.RegistrationNumber == registrationNumber);
+                return employee;
             }
         }
 
@@ -37,17 +38,40 @@ namespace WebAppEmployee.Data.Repositories
         {
             using (var context = new WebAppContext())
             {
-
-                var entity = await context.Employees.FirstOrDefaultAsync(x => x.RegistrationNumber == employee.RegistrationNumber
-                                                                            && x.IsExternalEmployee == employee.IsExternalEmployee);
+                var entity = await context.Employees.Include(x => x.Position).FirstOrDefaultAsync(x => x.RegistrationNumber == employee.RegistrationNumber);
                 if (entity != null)
                 {
                     // need to use Mapper I didnt have time for create mappings ...
                     entity.Birthday = employee.Birthday;
+                    entity.IsExternalEmployee = employee.IsExternalEmployee;
                     entity.FullName = employee.FullName;
                     entity.Gender = employee.Gender;
-                    entity.Position = employee.Position;
                     entity.ModifiedOn = DateTime.Now;
+                    if (entity.Position == null)
+                    {
+                        entity.Position = new Position()
+                        {
+                            Name = employee.Position.Name,
+                            BaseSalary = employee.Position.BaseSalary
+                        };
+                    }
+                    else
+                    {
+                        entity.Position.Name = employee.Position.Name;
+                        entity.Position.BaseSalary = employee.Position.BaseSalary;
+                    }
+                    // not good - need to use Id of Position for employee and change this Id, and if need to update some
+                    //info in Position - update just Position
+                    //var position = await context.Positions.FirstOrDefaultAsync(x => x.Id == employee.Position.Id);
+                    //if (position != null)
+                    //{
+                    //    position.Name = employee.Position.Name;
+                    //    position.BaseSalary = employee.Position.BaseSalary;
+                    //}
+                    //else
+                    //{
+                    //    context.Positions.Add(employee.Position);
+                    //}
 
                     await context.SaveChangesAsync();
                 }
@@ -56,12 +80,11 @@ namespace WebAppEmployee.Data.Repositories
             }
         }
 
-        public async Task Delete(int registrationNumber, bool isExternalEmployee)
+        public async Task Delete(int registrationNumber)
         {
             using (var context = new WebAppContext())
             {
-                var entity = await context.Employees.FirstOrDefaultAsync(x => x.RegistrationNumber == registrationNumber
-                                                                            && x.IsExternalEmployee == isExternalEmployee);
+                var entity = await context.Employees.FirstOrDefaultAsync(x => x.RegistrationNumber == registrationNumber);
                 if (entity != null)
                 {
                     entity.IsActive = false;
@@ -81,7 +104,7 @@ namespace WebAppEmployee.Data.Repositories
                 using (var context = new WebAppContext())
                 {
                     // need to use pagination 
-                    var a = await context.Employees.Where(x => x.IsActive == true).ToListAsync();
+                    var a = await context.Employees.Include(x => x.Position).Where(x => x.IsActive == true).ToListAsync();
                     return a;
                 }
 

@@ -9,13 +9,10 @@ namespace WebAppEmployee.Domain.Models
 {
     public class Employee
     {
-        [Key, Column(Order = 0)]
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RegistrationNumber { get; set; }
-
-        [Key, Column(Order = 1)]
         public bool IsExternalEmployee { get; set; }
-
         public string FullName { get; set; }
         public string Gender { get; set; }
         public DateTime Birthday { get; set; }

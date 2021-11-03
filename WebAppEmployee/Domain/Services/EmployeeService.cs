@@ -28,14 +28,14 @@ namespace WebAppEmployee.Domain.Services
             return await _employeeRepository.Create(employee);
         }
 
-        public Task<Employee> Update(Employee employee)
+        public async Task<Employee> Update(Employee employee)
         {
-            throw new NotImplementedException();
+            return await _employeeRepository.Update(employee);
         }
 
-        public async Task Delete(int registrationNumber, bool isExternalEmployee)
+        public async Task Delete(int registrationNumber)
         {
-            await _employeeRepository.Delete(registrationNumber, isExternalEmployee);
+            await _employeeRepository.Delete(registrationNumber);
         }
 
         public async Task<List<Employee>> GetAll()

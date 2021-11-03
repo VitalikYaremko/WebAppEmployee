@@ -13,6 +13,6 @@ namespace WebAppEmployee.Data.Interfaces.Service
         Task<Employee> GetByRegistrationNumber(int registrationNumber);
         Task<Employee> Create(Employee employee);
         Task<Employee> Update(Employee employee);
-        Task Delete(int registrationNumber, bool isExternalEmployee);
+        Task Delete(int registrationNumber);
     }
 }

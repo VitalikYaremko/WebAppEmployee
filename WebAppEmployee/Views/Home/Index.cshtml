@@ -29,21 +29,50 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="employeeModal" tabindex="-1" role="dialog" aria-labelledby="employeeModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="employeeModalLabel">Modal title</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                ...
+                <form>
+                    <div class="form-group">
+                        <label class="col-form-label">Registration Number:</label>
+                        <input type="text" class="form-control" id="registration-number" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">IsExternalEmployee:</label>
+                        <input type="text" class="form-control" id="is-external-employee">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">FullName:</label>
+                        <input type="text" class="form-control" id="full-name">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Gender:</label>
+                        <input type="text" class="form-control" id="gender">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Birthday:</label>
+                        <input type="text" class="form-control" id="birthday">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Position:</label>
+                        <input type="text" class="form-control" id="position">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Salary:</label>
+                        <input type="text" class="form-control" id="salary">
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-primary" Onclick='updateEmployee()'>Save changes</button>
             </div>
         </div>
     </div>
@@ -51,10 +80,11 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        LoadData();
+        loadData();
     });
 
-    function LoadData() {
+    function loadData() {
+        //need to move to service
         $("#tbl_employee tbody tr").remove();
         $.ajax({
             type: 'GET',
@@ -63,39 +93,99 @@
             success: function (data) {
                 $.each(data, function (i, item) {
                     var rows = "<tr>"
-                        + "<td>" + item.RegistrationNumber + "</td>"
-                        + "<td>" + item.IsExternalEmployee + "</td>"
-                        + "<td>" + item.FullName + "</td>"
-                        + "<td>" + item.Gender + "</td>"
-                        + "<td>" + item.Birthday + "</td>"
-                        + "<td>" + item.Position?.Name + "</td>"
-                        + "<td>" + item.Position?.Salary + "</td>"
-                        + `<td><button Onclick='Edit(${item.RegistrationNumber},${item.IsExternalEmployee})'>Edit</button></td>`
-                        + `<td><button Onclick='Delete(${item.RegistrationNumber},${item.IsExternalEmployee})'>Delete</button></td>`
+                        + `<td>${item.RegistrationNumber}</td>`
+                        + `<td>${item.IsExternalEmployee}</td>`
+                        + `<td>${item.FullName}</td>`
+                        + `<td>${item.Gender}</td>`
+                        + `<td>${item.Birthday}</td>`
+                        + `<td>${item.Position?.Name}</td>`
+                        + `<td>${item.Position?.BaseSalary}</td>`
+                        + `<td><button Onclick='edit(${item.RegistrationNumber},${item.IsExternalEmployee})'>Edit</button></td>`
+                        + `<td><button Onclick='deleteEmployee(${item.RegistrationNumber},${item.IsExternalEmployee})'>Delete</button></td>`
                         + "</tr>";
                     $('#tbl_employee tbody').append(rows);
                 });
             },
             error: function (ex) {
-                var r = jQuery.parseJSON(response.responseText);
-                alert("Message: " + r.Message);
-                alert("StackTrace: " + r.StackTrace);
-                alert("ExceptionType: " + r.ExceptionType);
+
             }
         });
         return false;
     }
 
-    function Edit(registrationNumber, isExternalEmployee) {
-        $('#exampleModal').modal('show');
+    function getEmployee(registrationNumber) {
+        //need to move to service
+        return $.ajax({
+            type: 'GET',
+            url: `/api/employee/${registrationNumber}`,
+            dataType: 'json',
+            success: function (data) {
+                return data;
+            },
+            error: function (ex) {
+
+            }
+        });
     }
 
-    function Delete(registrationNumber, isExternalEmployee) {
+   async function edit(registrationNumber) {
+        let item = await getEmployee(registrationNumber);
+        fillModal(item);
+        $('#employeeModal').modal('show');
+    }
+
+    function fillModal(item) {
+        $('#registration-number').val(item.RegistrationNumber);
+        $('#is-external-employee').val(item.IsExternalEmployee);
+        $('#full-name').val(item.FullName);
+        $('#gender').val(item.Gender);
+        $('#birthday').val(item.Birthday);
+        $('#position').val(item.Position?.Name);
+        $('#salary').val(item.Position?.BaseSalary);
+    }
+
+    function getModelFromModalWindow() {
+        return {
+            registrationNumber: $('#registration-number').val(),
+            isExternalEmployee: $('#is-external-employee').val(),
+            fullName: $('#full-name').val(),
+            gender: $('#gender').val(),
+            birthday: $('#birthday').val(),
+            positionName: $('#position').val(),
+            baseSalary: $('#salary').val()
+        }
+    }
+
+    function updateEmployee() {
+        let item = getModelFromModalWindow();
+
+        return $.ajax({
+            type: 'PUT',
+            url: `/api/employee`,
+            dataType: 'json',
+            data: item,
+            success: function (data) {
+                $('#employeeModal').modal('hide');
+                loadData();
+            },
+            error: function (ex) {
+
+            }
+        });
+
+       
+    }
+
+    function deleteEmployee(registrationNumber) {
+        //need to move to service
         $.ajax({
             type: 'DELETE',
-            url: `/api/employee?registrationNumber=${registrationNumber}&isExternalEmployee=${isExternalEmployee}`,
+            url: `/api/employee?registrationNumber=${registrationNumber}`,
             success: function () {
-                LoadData();
+                loadData();
+            },
+            error: function (ex) {
+
             }
         });
     }

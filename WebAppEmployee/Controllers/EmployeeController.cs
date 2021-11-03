@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using WebAppEmployee.Data.Dto;
 using WebAppEmployee.Data.Interfaces.Service;
 using WebAppEmployee.Domain.Models;
 
@@ -25,7 +26,7 @@ namespace WebAppEmployee.Controllers
             return Ok(employee);
         }
 
-        [HttpGet, Route("~/api/employee/{id}")]
+        [HttpGet, Route("~/api/employee/{registrationNumber}")]
         public async Task<IHttpActionResult> Get(int registrationNumber)
         {
             var employee = await _employeeService.GetByRegistrationNumber(registrationNumber);
@@ -42,15 +43,32 @@ namespace WebAppEmployee.Controllers
         }
 
         [HttpPut, Route("~/api/employee")]
-        public async Task<IHttpActionResult> UpdateEmployee(int id, [FromBody] string value)
+        public async Task<IHttpActionResult> UpdateEmployee([FromBody] EmployeeDto dto)
         {
-            return Ok();
+            // need to use mappings
+            var employee = new Employee()
+            {
+                RegistrationNumber = dto.RegistrationNumber,
+                Birthday = dto.Birthday,
+                FullName = dto.FullName,
+                Gender = dto.Gender,
+                IsExternalEmployee = dto.IsExternalEmployee,
+                Position = new Position()
+                {
+                    Name = dto.PositionName,
+                    BaseSalary = dto.BaseSalary
+                }
+            };
+
+            var model = await _employeeService.Update(employee);
+
+            return Ok(model);
         }
 
         [HttpDelete, Route("~/api/employee")]
-        public async Task<IHttpActionResult> Delete(int registrationNumber, bool isExternalEmployee)
+        public async Task<IHttpActionResult> Delete(int registrationNumber)
         {
-            await _employeeService.Delete(registrationNumber, isExternalEmployee);
+            await _employeeService.Delete(registrationNumber);
             return Ok();
         }
     }

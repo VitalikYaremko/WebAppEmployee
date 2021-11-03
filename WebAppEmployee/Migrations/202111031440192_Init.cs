@@ -3,7 +3,7 @@
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class init : DbMigration
+    public partial class Init : DbMigration
     {
         public override void Up()
         {
@@ -18,10 +18,10 @@
                         Birthday = c.DateTime(nullable: false),
                         CreatedOn = c.DateTime(nullable: false),
                         ModifiedOn = c.DateTime(nullable: false),
-                        IsActive = c.Boolean(nullable: false, defaultValue: true),
+                        IsActive = c.Boolean(nullable: false),
                         Position_Id = c.Guid(),
                     })
-                .PrimaryKey(t => new { t.RegistrationNumber, t.IsExternalEmployee })
+                .PrimaryKey(t => t.RegistrationNumber)
                 .ForeignKey("dbo.Positions", t => t.Position_Id)
                 .Index(t => t.Position_Id);
             
