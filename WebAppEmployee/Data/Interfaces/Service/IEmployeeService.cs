@@ -12,6 +12,7 @@ namespace WebAppEmployee.Data.Interfaces.Service
         Task<List<Employee>> GetAll();
         Task<Employee> GetByRegistrationNumber(int registrationNumber);
         Task<Employee> Create(Employee employee);
+        Task<List<Employee>> BulkCreate(List<Employee> employees);
         Task<Employee> Update(Employee employee);
         Task Delete(int registrationNumber);
     }

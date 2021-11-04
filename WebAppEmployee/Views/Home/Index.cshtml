@@ -1,35 +1,35 @@
-﻿@model IEnumerable<WebAppEmployee.Domain.Models.Employee>
-<div class="jumbotron">
-    <h1>ASP.NET MVC 5 TEST</h1>
-</div>
-<div id="modDialog" class="modal fade">
-    <div id="dialogContent" class="modal-dialog"></div>
-</div>
-<div class="row">
-    <div class="col-md-8">
-        <table id="tbl_employee" class="table table-bordered table-striped table-responsive table-hover">
-            <thead>
-                <tr>
-                    <th align="left">Registration Number</th>
-                    <th align="left">IsExternal</th>
-                    <th align="left">FullName</th>
-                    <th align="left">Gender</th>
-                    <th align="left">Birthday</th>
-                    <th align="left">Position Name</th>
-                    <th align="left">Salary</th>
-                    <th align="left"></th>
-                    <th align="left"></th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        @Scripts.Render("~/scripts/jquery-3.6.0.min.js")
-        @Scripts.Render("~/scripts/jquery.unobtrusive-ajax.min.js")
+﻿<div class="container">
+    <div class="jumbotron">
+        <h1>ASP.NET MVC 5 TEST</h1>
     </div>
-    <div class="col-md-4">
-        <button id="button">Import Employees</button>
-        <input id="file-input" type="file" name="name" onselect="importEmployees()" accept=".json" style="display: none;" />
+    <div class="row">
+        <div class="col-md-6">
+            <button type="button" class="btn btn-primary" id="btn_create_employee">Create Employee</button>
+
+        </div>
+        <div class="col-md-6 text-right">
+            <button type="button" class="btn btn-warning" id="btn_import_employee">Import Employees</button>
+            <input id="file-input" type="file" name="name" onselect="importEmployees()" accept=".json" style="display: none;" />
+        </div>
+
     </div>
+
+    <table id="tbl_employee" class="table table-bordered table-striped table-responsive table-hover">
+        <thead>
+            <tr>
+                <th align="left">Registration Number</th>
+                <th align="left">IsExternal</th>
+                <th align="left">FullName</th>
+                <th align="left">Gender</th>
+                <th align="left">Birthday</th>
+                <th align="left">Position Name</th>
+                <th align="left">Salary</th>
+                <th align="left"></th>
+                <th align="left"></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
 
 <!-- Modal -->
@@ -37,42 +37,40 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="employeeModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="employeeModalLabel">Edit Employee</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <label class="col-form-label">Registration Number:</label>
-                        <input type="text" class="form-control" id="registration-number" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">IsExternalEmployee:</label>
-                        <input type="text" class="form-control" id="is-external-employee">
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">FullName:</label>
-                        <input type="text" class="form-control" id="full-name">
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">Gender:</label>
-                        <input type="text" class="form-control" id="gender">
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">Birthday:</label>
-                        <input type="text" class="form-control" id="birthday">
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">Position:</label>
-                        <input type="text" class="form-control" id="position">
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">Salary:</label>
-                        <input type="text" class="form-control" id="salary">
-                    </div>
-                </form>
+                <div class="form-group">
+                    <label class="col-form-label">Registration Number:</label>
+                    <input type="text" class="form-control" id="registration-number" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">IsExternalEmployee:</label>
+                    <input type="text" class="form-control" id="is-external-employee">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">FullName:</label>
+                    <input type="text" class="form-control" id="full-name">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">Gender:</label>
+                    <input type="text" class="form-control" id="gender">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">Birthday:</label>
+                    <input type="text" class="form-control" id="birthday">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">Position:</label>
+                    <input type="text" class="form-control" id="position">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">Salary:</label>
+                    <input type="text" class="form-control" id="salary">
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -81,13 +79,15 @@
         </div>
     </div>
 </div>
+
 <script type="text/javascript">
 
     $(document).ready(function () {
         loadData();
     });
 
-    $('#button').on('click', function () {
+    $('#btn_import_employee').on('click', function () {
+        $('#file-input').val(null);
         $('#file-input').trigger('click');
     });
 
@@ -102,11 +102,43 @@
             processData: false,  // tell jQuery not to process the data
             contentType: false,  // tell jQuery not to set contentType
             success: function (data) {
-                alert(data);
+                saveToFile(data);
+                loadData();
             }
         });
     });
 
+    function Base64ToBytes(base64) {
+        var s = window.atob(base64);
+        var bytes = new Uint8Array(s.length);
+        for (var i = 0; i < s.length; i++) {
+            bytes[i] = s.charCodeAt(i);
+        }
+        return bytes;
+    };
+
+    var saveToFile = (data) => {
+        //Convert Base64 string to Byte Array.
+        var bytes = Base64ToBytes(data);
+
+        //Convert Byte Array to BLOB.
+        var blob = new Blob([bytes], { type: "application/octetstream" });
+
+        //Check the Browser type and download the File.
+        var isIE = false || !!document.documentMode;
+        if (isIE) {
+            window.navigator.msSaveBlob(blob, fileName);
+        } else {
+            var url = window.URL || window.webkitURL;
+            link = url.createObjectURL(blob);
+            var a = $("<a />");
+            a.attr("download", "response.txt");
+            a.attr("href", link);
+            $("body").append(a);
+            a[0].click();
+            $("body").remove(a);
+        }
+    };
 
     function loadData() {
         //need to move to service
@@ -153,7 +185,7 @@
         });
     }
 
-   async function edit(registrationNumber) {
+    async function edit(registrationNumber) {
         let item = await getEmployee(registrationNumber);
         fillModal(item);
         $('#employeeModal').modal('show');
@@ -198,7 +230,7 @@
             }
         });
 
-       
+
     }
 
     function deleteEmployee(registrationNumber) {

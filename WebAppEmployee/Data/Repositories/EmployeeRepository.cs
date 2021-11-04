@@ -41,7 +41,7 @@ namespace WebAppEmployee.Data.Repositories
                 var entity = await context.Employees.Include(x => x.Position).FirstOrDefaultAsync(x => x.RegistrationNumber == employee.RegistrationNumber);
                 if (entity != null)
                 {
-                    // need to use Mapper I didnt have time for create mappings ...
+                    // need to use Mapper
                     entity.Birthday = employee.Birthday;
                     entity.IsExternalEmployee = employee.IsExternalEmployee;
                     entity.FullName = employee.FullName;
@@ -116,9 +116,32 @@ namespace WebAppEmployee.Data.Repositories
             }
         }
 
-        public Task Delete(Guid id)
+        public async Task<List<Employee>> BulkCreate(List<Employee> employees)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (var context = new WebAppContext())
+                {
+                    context.Configuration.AutoDetectChangesEnabled = false;
+                    context.Configuration.ValidateOnSaveEnabled = false;
+
+                    foreach (var item in employees)
+                    {
+                        item.ModifiedOn = item.CreatedOn = DateTime.Now;
+                        item.IsActive = true;
+                        context.Employees.Add(item);
+                    }
+
+                    await context.SaveChangesAsync();
+                    return employees;
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+            
         }
     }
 }

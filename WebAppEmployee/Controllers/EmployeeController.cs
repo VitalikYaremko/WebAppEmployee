@@ -3,12 +3,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Results;
 using WebAppEmployee.Data.Dto;
 using WebAppEmployee.Data.Interfaces.Service;
 using WebAppEmployee.Domain.Models;
+using WebAppEmployee.Domain.Validations;
 
 namespace WebAppEmployee.Controllers
 {
@@ -79,6 +85,9 @@ namespace WebAppEmployee.Controllers
         {
             try
             {
+                var sb = new StringBuilder();
+                List<Employee> successEmployees = new List<Employee>();
+
                 var httpRequest = HttpContext.Current.Request;
                 if (httpRequest.Files.Count > 0)
                 {
@@ -88,17 +97,43 @@ namespace WebAppEmployee.Controllers
                     {
                         string json = r.ReadToEnd();
                         List<Employee> items = JsonConvert.DeserializeObject<List<Employee>>(json);
+
+                        //validate items FluentValidation
+                        var validator = new EmployeeValidator();
+                        for (var i = 0 ; i < items.Count; i++)
+                        {
+                            var result = validator.Validate(items[i]);
+                            var allMessages = result.ToString("~");
+                            if (!string.IsNullOrEmpty(allMessages))
+                            {
+                                sb.AppendLine($"{i + 1} | Name: {items[i].FullName} | {allMessages}");
+                            }
+                            else
+                            {
+                                successEmployees.Add(items[i]);
+                                sb.AppendLine($"{i + 1} | Name: {items[i].FullName} | Success !");
+                            }
+                        }
                     }
                 }
+
+                await _employeeService.BulkCreate(successEmployees);
+
+                var base65 = Base64Encode(sb.ToString());
+
+                // it would be better if return ResponseMessageResult to get more info on UI side
+                return Ok(base65);
             }
             catch (Exception e)
             {
-
                 throw;
             }
-            
-            return Ok();
         }
 
+        public static string Base64Encode(string plainText)
+        {
+            var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
+            return Convert.ToBase64String(plainTextBytes);
+        }
     }
 }

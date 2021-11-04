@@ -42,5 +42,11 @@ namespace WebAppEmployee.Domain.Services
         {
             return await _employeeRepository.GetAll();
         }
+
+        public async Task<List<Employee>> BulkCreate(List<Employee> employees)
+        {
+            return await _employeeRepository.BulkCreate(employees);
+
+        }
     }
 }
