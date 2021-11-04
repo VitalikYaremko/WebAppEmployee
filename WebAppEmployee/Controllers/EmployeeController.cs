@@ -43,8 +43,21 @@ namespace WebAppEmployee.Controllers
         }
 
         [HttpPost, Route("~/api/employee")]
-        public async Task<IHttpActionResult> CreateEmployee([FromBody] Employee employee)
+        public async Task<IHttpActionResult> CreateEmployee([FromBody] EmployeeDto dto)
         {
+            // need to use mappings
+            var employee = new Employee()
+            {
+                Birthday = dto.Birthday,
+                FullName = dto.FullName,
+                Gender = dto.Gender,
+                IsExternalEmployee = dto.IsExternalEmployee,
+                Position = new Position()
+                {
+                    Name = dto.PositionName,
+                    BaseSalary = dto.BaseSalary
+                }
+            };
             var model = await _employeeService.Create(employee);
 
             return Ok(model);
@@ -83,53 +96,47 @@ namespace WebAppEmployee.Controllers
         [HttpPost, Route("~/api/employee/import")]
         public async Task<IHttpActionResult> ImportEmployees()
         {
-            try
+            var sb = new StringBuilder();
+            List<Employee> successEmployees = new List<Employee>();
+
+            var httpRequest = HttpContext.Current.Request;
+            if (httpRequest.Files.Count > 0)
             {
-                var sb = new StringBuilder();
-                List<Employee> successEmployees = new List<Employee>();
+                var postedFile = httpRequest.Files[0];
 
-                var httpRequest = HttpContext.Current.Request;
-                if (httpRequest.Files.Count > 0)
+                using (StreamReader r = new StreamReader(postedFile.InputStream))
                 {
-                    var postedFile = httpRequest.Files[0];
+                    string json = r.ReadToEnd();
+                    List<Employee> items = JsonConvert.DeserializeObject<List<Employee>>(json);
 
-                    using (StreamReader r = new StreamReader(postedFile.InputStream))
+                    //validate items FluentValidation
+                    var validator = new EmployeeValidator();
+                    for (var i = 0; i < items.Count; i++)
                     {
-                        string json = r.ReadToEnd();
-                        List<Employee> items = JsonConvert.DeserializeObject<List<Employee>>(json);
-
-                        //validate items FluentValidation
-                        var validator = new EmployeeValidator();
-                        for (var i = 0 ; i < items.Count; i++)
+                        var result = validator.Validate(items[i]);
+                        var allMessages = result.ToString("~");
+                        if (!string.IsNullOrEmpty(allMessages))
                         {
-                            var result = validator.Validate(items[i]);
-                            var allMessages = result.ToString("~");
-                            if (!string.IsNullOrEmpty(allMessages))
-                            {
-                                sb.AppendLine($"{i + 1} | Name: {items[i].FullName} | {allMessages}");
-                            }
-                            else
-                            {
-                                successEmployees.Add(items[i]);
-                                sb.AppendLine($"{i + 1} | Name: {items[i].FullName} | Success !");
-                            }
+                            sb.AppendLine($"{i + 1} | Name: {items[i].FullName} | {allMessages}");
+                        }
+                        else
+                        {
+                            successEmployees.Add(items[i]);
+                            sb.AppendLine($"{i + 1} | Name: {items[i].FullName} | Success !");
                         }
                     }
                 }
-
-                await _employeeService.BulkCreate(successEmployees);
-
-                var base65 = Base64Encode(sb.ToString());
-
-                // it would be better if return ResponseMessageResult to get more info on UI side
-                return Ok(base65);
             }
-            catch (Exception e)
-            {
-                throw;
-            }
+
+            await _employeeService.BulkCreate(successEmployees);
+
+            var base65 = Base64Encode(sb.ToString());
+
+            // it would be better if return ResponseMessageResult to get more info on UI side
+            return Ok(base65);
         }
 
+        //need to move to extensions methods
         public static string Base64Encode(string plainText)
         {
             var plainTextBytes = Encoding.UTF8.GetBytes(plainText);

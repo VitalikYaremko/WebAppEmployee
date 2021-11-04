@@ -4,7 +4,7 @@
     </div>
     <div class="row">
         <div class="col-md-6">
-            <button type="button" class="btn btn-primary" id="btn_create_employee">Create Employee</button>
+            <button type="button" class="btn btn-primary" onClick="showCreateEmployeeModal()" id="btn_create_employee">Create Employee</button>
 
         </div>
         <div class="col-md-6 text-right">
@@ -32,7 +32,7 @@
     </table>
 </div>
 
-<!-- Modal -->
+<!--Edit Modal (need to move to another file) -->
 <div class="modal fade" id="employeeModal" tabindex="-1" role="dialog" aria-labelledby="employeeModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -80,6 +80,54 @@
     </div>
 </div>
 
+@*Create Modal (need to move to another file)*@
+<div class="modal fade" id="createEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="createEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createEmployeeModalLabel">Create Employee</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="employeeForm" class="validate">
+                    <div class="form-group">
+                        <label class="col-form-label">FullName:</label>
+                        <input type="text" class="form-control required" id="full-name" name="fullName">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Gender:</label>@*need to use DropDown*@
+                        <input type="text" class="form-control" name="gender">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" id="is-external-employee" type="checkbox" value="">
+                        <label class="form-check-label">
+                            External Employee ?
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Birthday:</label>
+                        <input type="date" class="form-control" name="birthday">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Position:</label> @*need to use DropDown*@
+                        <input type="text" class="form-control" name="position">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Salary:</label>
+                        <input type="number" min="0" class="form-control" name="baseSalary">
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" Onclick='createEmployee()'>Create</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -154,7 +202,7 @@
                         + `<td>${item.IsExternalEmployee}</td>`
                         + `<td>${item.FullName}</td>`
                         + `<td>${item.Gender}</td>`
-                        + `<td>${item.Birthday}</td>`
+                        + `<td>${moment(item.Birthday).format('DD MMM YYYY')}</td>`
                         + `<td>${item.Position?.Name}</td>`
                         + `<td>${item.Position?.BaseSalary}</td>`
                         + `<td><button Onclick='edit(${item.RegistrationNumber},${item.IsExternalEmployee})'>Edit</button></td>`
@@ -190,6 +238,65 @@
         fillModal(item);
         $('#employeeModal').modal('show');
     }
+
+    function showCreateEmployeeModal() {
+        resetForm($('#employeeForm'));
+        $('#createEmployeeModal').modal('show');
+    }
+
+    function resetForm($form) {
+        $form.find('input:text, input:password, input:file, select, textarea').val('');
+        $form.find('input:radio, input:checkbox')
+            .removeAttr('checked').removeAttr('selected');
+    }
+
+
+    async function createEmployee() {
+
+        var data = $('#employeeForm').serializeArray().reduce(function (obj, item) {
+            obj[item.name] = item.value;
+            return obj;
+        }, {});
+        data['isExternalEmployee'] = $("input[id='is-external-employee']").is(":checked");
+
+        return $.ajax({
+            type: 'POST',
+            url: `/api/employee`,
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                $('#createEmployeeModal').modal('hide');
+                loadData();
+            },
+            error: function (ex) {
+
+            }
+        });
+    }
+
+    // need to fill and fix this validator
+    $(".validate").validate({
+        rules: {
+            fullName: {
+                required: true,
+                minlength: 2
+            }
+        },
+        messages: {
+            name: {
+                required: "Please enter the name",
+                minlength: "Must be grater than 2 symbols"
+            }
+        },
+        submitHandler: function (form) {
+            form.submit();
+        },
+        errorPlacement: function (error, element) {
+            var item = element.parents('.item');
+            item.append(error);
+        }
+    });
+
 
     function fillModal(item) {
         $('#registration-number').val(item.RegistrationNumber);
@@ -229,8 +336,6 @@
 
             }
         });
-
-
     }
 
     function deleteEmployee(registrationNumber) {
