@@ -1,0 +1,51 @@
+[{
+    "IsExternalEmployee": true,
+    "FullName": "Vitaliy",
+    "Gender": "man",
+    "Birthday": "2011-11-02T13:11:38.717",
+    "Position": {
+        "Name": ".Net Developer",
+        "BaseSalary": 1000.00
+    }
+},
+{
+    "IsExternalEmployee": true,
+    "FullName": "Max",
+    "Gender": "man",
+    "Birthday": "2011-11-02T13:11:38.717",
+    "Position": {
+        "Name": "FrontEnd Developer",
+        "BaseSalary": 1000.00
+    },
+},
+{
+    "IsExternalEmployee": true,
+    "FullName": "Natalia",
+    "Gender": "woman",
+    "Birthday": "2021-11-02T13:11:38.717",
+    "Position": {
+        "Name": "UI/UX",
+        "BaseSalary": 1000.00
+    },
+},
+{
+    "IsExternalEmployee": true,
+    "FullName": "",
+    "Gender": "man",
+    "Birthday": "2021-11-02T13:11:38.717",
+    "Position": {
+        "Name": "",
+        "BaseSalary": 1000.00
+    },
+},
+{
+    "IsExternalEmployee": true,
+    "FullName": "Vitaliy",
+    "Gender": "",
+    "Birthday": "2021-11-02T13:11:38.717",
+    "Position": {
+        "Name": "QA",
+        "BaseSalary": 1000.00
+    },
+}
+]
